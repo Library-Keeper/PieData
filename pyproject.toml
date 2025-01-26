@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling", "pydantic"]
+build-backend = "hatchling.build"
+
+[project]
+name = "PieData"
+version = "0.0.1"
+authors = [
+  { name="Library_Keeper"},
+]
+description = "File DB"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: SHAWARMA-WARE LICENSE",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/pypa/sampleproject"
+Issues = "https://github.com/pypa/sampleproject/issues"
