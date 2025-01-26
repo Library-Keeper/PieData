@@ -44,6 +44,21 @@ class IntegerField(PieField):
     def _validate_value(self, value):
         return (value >= self.min_value if self.min_value is not None else True) and (value <= self.max_value if self.max_value is not None else True)
 
+class FloatField(PieField):
+    def __init__(self, initial_value: int = None, max_value = None, min_value = None, is_required: bool = False):
+        super().__init__(initial_value, is_required)
+        self.max_value = max_value
+        self.min_value = min_value
+
+    def validate(self, value):
+        if super().validate(value):
+            return (value is None) or (isinstance(value, float) and self._validate_value(value))
+        else:
+            return False
+
+    def _validate_value(self, value):
+        return (value >= self.min_value if self.min_value is not None else True) and (value <= self.max_value if self.max_value is not None else True)
+
 class PieModelMeta(type):
     def __new__(self, name, bases, namespace):
         fields = {
