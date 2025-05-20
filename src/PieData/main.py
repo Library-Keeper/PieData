@@ -3,9 +3,10 @@ PieData это БД на основе множества файлов.
 Каждая таблица это отдельная папка.
 А каждая запись это отдельный файл.
 """
-import time
 from datetime import datetime
 from typing import Union, Optional
+import asyncio
+import websockets
 class PieField:
     def __init__(self, initial_value = None, is_required: bool = False):
         self.initial_value = initial_value
@@ -141,7 +142,7 @@ class PieModel(metaclass=PieModelMeta):
         return str(new_dictionary)
     
     @classmethod
-    def _create_table_sql(cls):
+    def _create_table_sql(cls) -> str:
         data = []
         for key, value in cls._fields.items():
             type_name = type(value).__name__.removesuffix("Field")
@@ -149,7 +150,55 @@ class PieModel(metaclass=PieModelMeta):
         res = f"({", ".join(data)})"
         return f"create table {cls._table_name} {res}"
 
+    @staticmethod
+    def _parse_value(value) -> str:
+        if isinstance(value, int | float):
+            return str(value)
+        return f"'{value}'"
 
-class PieData():
-    def __init__(self):
-        pass
+    def _insert_into_sql(self):
+        data = self._fields.keys()
+        return f"insert into {self._table_name} ({", ".join(data)}) values ({", ".join(self._parse_value(getattr(self, key)) for key in data)})"
+
+
+
+class PieDB():
+    def __init__(
+            self, 
+            *tables: PieModel,
+            db_dir: str = "database", 
+            db_address: str = "localhost", 
+            db_port: int = 8765
+            ):
+        self.tables = tables
+        self.root_dir = db_dir
+        self.uri = f"ws://{db_address}:{db_port}"
+        self.websocket = None
+        self.loop = asyncio.get_event_loop()
+
+    async def connect(self):
+        if self.websocket is None or self.websocket.closed:
+            self.websocket = await websockets.connect(self.uri)
+
+    async def send_command(self, command):
+        await self.connect()
+        await self.websocket.send(command)
+        response = await self.websocket.recv()
+        return response
+
+    def command(self, command):
+        return self.loop.run_until_complete(self.send_command(command))
+
+    def check_connection(self):
+        return self.command("CHECK CONNECTION")
+
+    async def close(self):
+        if self.websocket:
+            await self.websocket.close()
+ 
+    def __del__(self):
+        self.loop.run_until_complete(self.close())
+
+
+
+        
