@@ -3,7 +3,9 @@ PieData это БД на основе множества файлов.
 Каждая таблица это отдельная папка.
 А каждая запись это отдельный файл.
 """
-
+import time
+from datetime import datetime
+from typing import Union, Optional
 class PieField:
     def __init__(self, initial_value = None, is_required: bool = False):
         self.initial_value = initial_value
@@ -59,6 +61,49 @@ class FloatField(PieField):
     def _validate_value(self, value):
         return (value >= self.min_value if self.min_value is not None else True) and (value <= self.max_value if self.max_value is not None else True)
 
+class DatetimeField(PieField):
+    SUPPORTED_FORMATS = [
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M:%SZ",
+        "%Y-%m-%dT%H:%M:%S%z",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d",
+        "%Y.%m.%d",
+        "%d.%m.%Y",
+        "%m/%d/%Y",
+        "%H:%M:%S",
+        "%H:%M",
+    ]
+    
+    def __init__(self, initial_value: Optional[Union[str, datetime]] = None, 
+                 is_required: bool = False, 
+                 custom_formats: Optional[list[str]] = None):
+        super().__init__(initial_value, is_required)
+        self.formats = self.SUPPORTED_FORMATS.copy()
+        if custom_formats:
+            self.formats.extend(custom_formats)
+    
+    def validate(self, value: Union[str, datetime, None]) -> bool:
+        if not super().validate(value):
+            return False
+        
+        if value is None:
+            return True
+            
+        if isinstance(value, datetime):
+            return True
+            
+        if isinstance(value, str):
+            for fmt in self.formats:
+                try:
+                    datetime.strptime(value, fmt)
+                    return True
+                except ValueError:
+                    continue
+                    
+        return False
+
+
 class PieModelMeta(type):
     def __new__(self, name, bases, namespace):
         fields = {
@@ -68,9 +113,11 @@ class PieModelMeta(type):
         for name in fields.keys():
             del new_namespace[name]
         new_namespace['_fields'] = fields
+        new_namespace['_table_name'] = new_namespace['__qualname__']
         return super().__new__(self, name, bases, new_namespace)
 
 class PieModel(metaclass=PieModelMeta):
+
     def __init__(self, *args, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -92,3 +139,17 @@ class PieModel(metaclass=PieModelMeta):
         for name in self._fields.keys():
             new_dictionary[name] = getattr(self, name)
         return str(new_dictionary)
+    
+    @classmethod
+    def _create_table_sql(cls):
+        data = []
+        for key, value in cls._fields.items():
+            type_name = type(value).__name__.removesuffix("Field")
+            data.append(f"{key} {type_name}")
+        res = f"({", ".join(data)})"
+        return f"create table {cls._table_name} {res}"
+
+
+class PieData():
+    def __init__(self):
+        pass

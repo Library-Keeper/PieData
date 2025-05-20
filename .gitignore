@@ -3,3 +3,6 @@ src/*.py
 src/db
 .vscode
 src/PieData/__pycache__
+tests
+database
+.gitignore
