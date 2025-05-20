@@ -1,9 +1,10 @@
 """
-PieData это БД на основе множества файлов.
+PieDB это БД на основе множества файлов.
 Каждая таблица это отдельная папка.
 А каждая запись это отдельный файл.
 """
 from datetime import datetime
+import json
 from typing import Union, Optional
 import asyncio
 import websockets
@@ -141,6 +142,12 @@ class PieModel(metaclass=PieModelMeta):
             new_dictionary[name] = getattr(self, name)
         return str(new_dictionary)
     
+    @staticmethod
+    def _parse_value(value) -> str:
+        if isinstance(value, int | float):
+            return str(value)
+        return f"'{value}'"
+    
     @classmethod
     def _create_table_sql(cls) -> str:
         data = []
@@ -149,35 +156,62 @@ class PieModel(metaclass=PieModelMeta):
             data.append(f"{key} {type_name}")
         res = f"({", ".join(data)})"
         return f"create table {cls._table_name} {res}"
-
-    @staticmethod
-    def _parse_value(value) -> str:
-        if isinstance(value, int | float):
-            return str(value)
-        return f"'{value}'"
+    
+    @classmethod
+    def _check_table_sql(cls):
+        return f"check table {cls._table_name}"
+    
+    @classmethod
+    def _drop_table_sql(cls):
+        return f"drop table if exists {cls._table_name}"
 
     def _insert_into_sql(self):
         data = self._fields.keys()
         return f"insert into {self._table_name} ({", ".join(data)}) values ({", ".join(self._parse_value(getattr(self, key)) for key in data)})"
 
 
-
 class PieDB():
     def __init__(
-            self, 
-            *tables: PieModel,
-            db_dir: str = "database", 
+            self,
             db_address: str = "localhost", 
-            db_port: int = 8765
+            db_port: int = 8765,
+            *args,
+            **kwargs
             ):
-        self.tables = tables
-        self.root_dir = db_dir
+        self.tables = PieModel.__subclasses__()
+        self.selected = None
         self.uri = f"ws://{db_address}:{db_port}"
         self.websocket = None
         self.loop = asyncio.get_event_loop()
+        
+        for table in self.tables:
+            t = json.loads(self.command(table._check_table_sql()))
+            if not t[0]:
+                self.command(table._create_table_sql())
+
+    def table(self, table_name: str):
+        for table in self.tables:
+            if table._table_name == table_name:
+                self.selected = table
+        return self
+    
+    def insert(self, data: PieModel):
+        return self.command(data._insert_into_sql())
+
+    def drop(self):
+        if self.selected is None: return
+        table = self.selected
+        self.selected = None
+        return self.command(table._drop_table_sql())
+
+    def create(self):
+        if self.selected is None: return
+        table = self.selected
+        self.selected = None
+        return self.command(table._create_table_sql())
 
     async def connect(self):
-        if self.websocket is None or self.websocket.closed:
+        if self.websocket is None:
             self.websocket = await websockets.connect(self.uri)
 
     async def send_command(self, command):
@@ -195,10 +229,6 @@ class PieDB():
     async def close(self):
         if self.websocket:
             await self.websocket.close()
- 
+
     def __del__(self):
-        self.loop.run_until_complete(self.close())
-
-
-
-        
+        return self.loop.run_until_complete(self.close())
