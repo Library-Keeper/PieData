@@ -1,4 +1,4 @@
-**PieDB** is an ORM-wrapped file database that supports SQL-like commands via WebSocket server. Each table is stored as a folder, each record as an XML file. The ORM layer allows you to work with Python models, and the server handles client commands via WebSocket.
+**PieData** is an ORM-wrapped file database that supports SQL-like commands via WebSocket server. Each table is stored as a folder, each record as an XML file. The ORM layer allows you to work with Python models, and the server handles client commands via WebSocket.
 
 # Usage example
 
@@ -12,10 +12,10 @@ class User(PieModel):
 ```
 ### main.py
 ```python
-from PieData import PieDB
+from PieData import PieData
 from models import User
 
-db = PieDB()
+db = PieData()
 
 db.create_table(User)
 
@@ -33,7 +33,7 @@ db.delete(User, "age = 31")
 
 ```python
 async def main():
-    async with PieDB() as db:
+    async with PieData() as db:
         await db.create_table_async(User)
         await db.insert_async(User(name="Bob", age=25))
         users = await db.select_async(User, as_model=True)

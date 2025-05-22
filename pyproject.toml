@@ -1,29 +1,29 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "PieData"
-version = "0.0.1"
+version = "0.0.5"
 dependencies = [
-  "websockets"
+  "websockets>=14.2"
 ]
-
 authors = [
   {name="Library_Keeper"},
 ]
-description = " PieDB is a database based on separate files."
+description = " PieData is a database based on separate files."
 readme = "README.md"
-license = "MIT"
-keywords = ["piedb", "database", "files"]
+license = { text = "MIT" }
+keywords = ["piedata", "database", "files"]
 requires-python = ">=3.13"
 classifiers = [
     "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Education"
 ]
 [project.urls]
-Homepage = "https://github.com/Library-Keeper/PieDB"
-Issues = "https://github.com/Library-Keeper/PieDB/issues"
-Documentation = "https://github.com/Library-Keeper/PieDB/wiki"
+Homepage = "https://github.com/Library-Keeper/PieData"
+Issues = "https://github.com/Library-Keeper/PieData/issues"
+Documentation = "https://github.com/Library-Keeper/PieData/wiki"
