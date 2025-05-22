@@ -1,12 +1,6 @@
-"""
-PieDB это БД на основе множества файлов.
-Каждая таблица это отдельная папка.
-А каждая запись это отдельный файл.
-"""
-
 from datetime import datetime
 import json
-from typing import Union, Optional, Type, Dict, List, Any, TypeVar, Generic
+from typing import Type, Dict, Any, TypeVar
 import asyncio
 import websockets
 
@@ -143,7 +137,7 @@ class PieModel(metaclass=PieModelMeta):
                 kwargs[field_name] = value
         return cls(**kwargs)
 
-class PieDB:
+class PieData:
     def __init__(self, host="localhost", port=8765):
         self.host = host
         self.port = port

@@ -1,18 +1,29 @@
 [build-system]
-requires = ["hatchling", "pydantic"]
-build-backend = "hatchling.build"
+requires = ["setuptools""]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "PieData"
+name = "PieDB"
 version = "0.0.1"
+dependencies = [
+  "websockets"
+]
+
 authors = [
   {name="Library_Keeper"},
 ]
-description = "File DB"
+description = " PieDB is a database based on separate files."
 readme = "README.md"
+license = "MIT"
+keywords = ["piedb", "database", "files"]
 requires-python = ">=3.13"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: SHAWARMA-WARE LICENSE",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
+    "Development Status :: 2 - Pre-Alpha,
+    "Intended Audience :: Education",
 ]
+[project.urls]
+Homepage = "https://github.com/Library-Keeper/PieDB"
+Issues = "https://github.com/Library-Keeper/PieDB/issues"
+Documentation = "https://github.com/Library-Keeper/PieDB/wiki"

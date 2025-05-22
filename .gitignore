@@ -3,7 +3,7 @@ src/*.py
 src/db
 src/__pycache__
 .vscode
-src/PieDB/__pycache__
+src/PieData/__pycache__
 tests
 database
 .gitignore
