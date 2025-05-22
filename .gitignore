@@ -1,8 +1,9 @@
 .idea
 src/*.py
 src/db
+src/__pycache__
 .vscode
-src/PieData/__pycache__
+src/PieDB/__pycache__
 tests
 database
 .gitignore
