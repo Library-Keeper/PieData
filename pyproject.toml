@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "PieData"
-version = "0.0.5"
+version = "0.0.10"
 dependencies = [
   "websockets>=14.2"
 ]
@@ -23,6 +23,8 @@ classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Education"
 ]
+[project.scripts]
+piedataserver = "PieData.server:main"
 [project.urls]
 Homepage = "https://github.com/Library-Keeper/PieData"
 Issues = "https://github.com/Library-Keeper/PieData/issues"
