@@ -78,6 +78,7 @@ Available subcommands:
 ```bash
 piedata start         # Start the PieData WebSocket server in the background
 piedata stop          # Stop the server by PID
+piedata check         # Check PID if server running
 piedata restart       # Restart the server (stop + start)
 piedata autostart     # Enable OS autostart for the server
 piedata noautostart   # Disable OS autostart for the server
